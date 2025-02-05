@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apps
+spec:
+  selector:
+    matchLabels:
+      app: apps
+  template:
+    metadata:
+      labels:
+        app: apps
+    spec:
+      containers:
+      - name: multitool
+        image: wbitt/network-multitool
+        volumeMounts:
+          - name:  multi-vol
+            mountPath:  /configs
+      
+      volumes:
+        - name: multi-vol
+          persistentVolumeClaim:
+            claimName: pvc-nfs
+
+
+--- 
+
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: my-pvc
+# spec:
+#   storageClassName: nfs-csi
+#   accessModes: [ReadWriteOnce]
+#   resources:
+#     requests:
+#       storage: 1Gi
+
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-nfs
+  labels:
+    vol: pvc-nfs
+  namespace: default
+spec:
+  storageClassName: "nfs"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

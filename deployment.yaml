@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apps
+spec:
+  selector:
+    matchLabels:
+      app: apps
+  template:
+    metadata:
+      labels:
+        app: apps
+    spec:
+      containers:
+      - name: multitool
+        image: wbitt/network-multitool
+        ports:
+        - containerPort: 81
+        volumeMounts:
+        - name: test-vol
+          mountPath: /configs
+
+      - name: busybox
+        image: busybox:latest
+        ports:
+        - containerPort: 80
+        command: ['sh']  
+        args: ['-c', 'while true; do echo "$(date)" >> /configs/test.log; sleep 5; done']        
+        volumeMounts:
+        - name: test-vol
+          mountPath: /configs
+
+      volumes:
+      - name: test-vol
+        persistentVolumeClaim:
+          claimName: test-pvc
